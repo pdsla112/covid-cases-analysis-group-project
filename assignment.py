@@ -42,7 +42,7 @@ def find_most_recent():
           """)
         
         
-# Question 1 (b) (still working on it):
+# Question 1 (b):
 def find_total_worldwide():
     all_csv = os.listdir("./covid-data")
     all_csv = [csv_file for csv_file in all_csv if csv_file.endswith(".csv")]
