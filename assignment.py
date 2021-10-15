@@ -6,7 +6,7 @@ site, at https://cs.anu.edu.au/courses/comp1730/assessment/project/
 
 The assignment is due 25/10/2021 at 9:00 am, Canberra time
 
-Collaborators: <list the UIDs of ALL members of your project group here>
+Collaborators: u6943702
 """
 
 def analyse(path_to_files):
