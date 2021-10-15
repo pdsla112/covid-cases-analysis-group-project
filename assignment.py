@@ -41,7 +41,7 @@ def find_most_recent():
           Last updated at {latest_update}
           """)
         
-
+        
 # Question 1 (b) (still working on it):
 def find_total_worldwide():
     all_csv = os.listdir("./covid-data")
@@ -49,11 +49,14 @@ def find_total_worldwide():
     latest_csv = max(all_csv)
     df = pd.read_csv("./covid-data/" + latest_csv)
     latest_update = max(df["Last_Update"])
+    total_cases = df["Confirmed"].sum()
+    total_deaths = df["Deaths"].sum()
     print(F"""
-          Analysing data from folder...
+          Analysing data from folder ...
           
           Question 1:
           Most recent data is in file `{latest_csv}`
           Last updated at {latest_update}
+          Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}
           """)
         
