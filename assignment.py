@@ -14,6 +14,11 @@ import pandas as pd
 
 # Question 1 (a):
 def find_most_recent(df, latest_csv):
+    """
+    Function for printing desired results for question 1 (a). Requires parameter
+    inputs of a Pandas dataframe of the most recent data, and the name of the
+    latest csv file. Returns null, but prints the desired information for this question.
+    """
     latest_update = max(df["Last_Update"])
     print("Question 1 (a):\n"
           F"Most recent data is in file `{latest_csv}`\n"
@@ -22,6 +27,11 @@ def find_most_recent(df, latest_csv):
         
 # Question 1 (b):
 def find_total_worldwide(df, latest_csv):
+    """
+    Function for printing desired results for question 1 (b). Requires parameter
+    inputs of a Pandas dataframe of the most recent data, and the name of the
+    latest csv file. Returns null, but prints the desired information for this question.
+    """
     latest_update = max(df["Last_Update"])
     total_cases = df["Confirmed"].sum()
     total_deaths = df["Deaths"].sum()
@@ -33,6 +43,12 @@ def find_total_worldwide(df, latest_csv):
 
 # Question 4:
 def find_rates(df):
+    """
+    Function for printing desired results for question 4. Requires parameter
+    input of a Pandas dataframe of the most recent data. Returns null, but prints
+    the desired information for this question. Depends on two helper functions
+    get_population and print_stats_country.
+    """
     pd.options.mode.chained_assignment = None
     df = df.dropna(subset=["Incident_Rate"])
     df["population"] = get_population(df.loc[:,"Confirmed"], df.loc[:,"Incident_Rate"])
@@ -43,10 +59,22 @@ def find_rates(df):
     print("\n")
     
 def get_population(cases, incident_rate):
+    """
+    Helper function for find_rates function. Returns the population of each 
+    row/country-region. Requires inputs of the confirmed cases and incident_rate
+    for that row.
+    """
     population = (100000 * cases) / incident_rate
     return population
 
 def print_stats_country(country, population, confirmed, deaths):
+    """
+    Helper function for find_rates function. Calculates the incident_rate and 
+    case_fatality_rate of that row. This row contains the data of the entire 
+    country, not its smaller regions. Prints the desired result for question 4 
+    for each country into the console. Requires country name, population count, 
+    confirmed cases, and death cases as inputs. 
+    """
     incident_rate = round((confirmed / population) * 100000, 3)
     case_fatality_rate = round((deaths / confirmed) * 100, 3)
     print(F"{country} : {incident_rate} cases per 100,000 people and case-fatality ratio: {case_fatality_rate} %")
