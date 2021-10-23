@@ -49,11 +49,6 @@ def find_total_cases_deaths(df):
         print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
     print("\n")
     
-# Question 2 (b):
-def find_new_cases():
-    print("Question 2 (b):")
-    
-    print("\n")
     
 # Question 3(a):
 def daily_cases_and_death():
@@ -159,8 +154,7 @@ def print_stats_country(country, population, confirmed, deaths):
 def analyse(path_to_files):
     all_csv = os.listdir(path_to_files)
     all_csv = [csv_file for csv_file in all_csv if csv_file.endswith(".csv")]
-    all_csv = all_csv.sort(reverse=True)
-    latest_csv = all_csv[0]
+    latest_csv = max(all_csv)
     df = pd.read_csv(path_to_files + "/" + latest_csv)
     print(F"Analysing data from folder {path_to_files}")
     print()
