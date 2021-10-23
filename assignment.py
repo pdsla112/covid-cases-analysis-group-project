@@ -60,3 +60,43 @@ def find_total_worldwide():
           Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}
           """)
         
+
+
+# Question 4:
+def find_rates():
+    all_csv = os.listdir("./covid-data")
+    all_csv = [csv_file for csv_file in all_csv if csv_file.endswith(".csv")]
+    latest_csv = max(all_csv)
+    df = pd.read_csv("./covid-data/" + latest_csv)
+    df = df.dropna(subset=["Incident_Rate"])
+    df["population"] = get_population(df["Confirmed"], df["Incident_Rate"])
+    df = df.groupby("Country_Region", as_index=False)[["population", "Confirmed", "Deaths"]].sum()
+    print("Question 4:")
+    for row in df.itertuples(index=False):
+        print_stats_country(row.Country_Region, row.population, row.Confirmed, row.Deaths)
+    
+def get_population(cases, incident_rate):
+    population = (100000 * cases) / incident_rate
+    return population
+
+def print_stats_country(country, population, confirmed, deaths):
+    incident_rate = round((confirmed / population) * 100000, 3)
+    case_fatality_rate = round((deaths / confirmed) * 100, 3)
+    print(F"{country} : {incident_rate} cases per 100,000 people and case-fatality ratio: {case_fatality_rate} %")
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
