@@ -39,7 +39,18 @@ def find_total_worldwide(df, latest_csv):
           F"Most recent data is in file `{latest_csv}`\n"
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
-        
+    
+# Question 2 (a):
+def find_total_cases_deaths(df):
+    print("Question 2 (a):")
+    df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
+    df = df.sort_values(by="Confirmed", ascending=False)
+    df = df.iloc[0:10,:]
+    for row in df.itertuples(index=False):
+        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
+    print("\n")
+    
+    
 
 # Question 4:
 def find_rates(df):
@@ -96,6 +107,7 @@ def analyse(path_to_files):
     print()
     find_most_recent(df, latest_csv)
     find_total_worldwide(df, latest_csv)
+    find_total_cases_deaths(df)
     find_rates(df)
 
 
