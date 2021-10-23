@@ -38,6 +38,16 @@ def find_total_worldwide(df, latest_csv):
           F"Most recent data is in file `{latest_csv}`\n"
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
+
+# Phillip's Question 2 (a):
+def find_total_cases_deaths(df):
+    print("Question 2 (a):")
+    df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
+    df = df.sort_values(by="Confirmed", ascending=False)
+    df = df.iloc[0:10,:]
+    for row in df.itertuples(index=False):
+        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
+    print("\n")
     
 # Question 2(a)
 
@@ -221,8 +231,7 @@ def print_stats_country(country, population, confirmed, deaths):
 def analyse(path_to_files):
     all_csv = os.listdir(path_to_files)
     all_csv = [csv_file for csv_file in all_csv if csv_file.endswith(".csv")]
-    all_csv = all_csv.sort(reverse=True)
-    latest_csv = all_csv[0]
+    latest_csv = max(all_csv)
     df = pd.read_csv(path_to_files + "/" + latest_csv)
     print(F"Analysing data from folder {path_to_files}")
     print()
