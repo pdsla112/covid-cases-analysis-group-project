@@ -39,16 +39,83 @@ def find_total_worldwide(df, latest_csv):
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
     
-# Question 2 (a):
-def find_total_cases_deaths(df):
-    print("Question 2 (a):")
-    df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
-    df = df.sort_values(by="Confirmed", ascending=False)
-    df = df.iloc[0:10,:]
-    for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
-    print("\n")
+# Question 2(a)
+
+from os import listdir
+
+def find_csv_filenames( path_to_dir, suffix=".csv" ):
+    filenames = listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+
+
+
+#filenames = []#find_csv_filenames("covid-data")
+
+
+
+
+def find_total_cases_and_death_each_country():
+     confirm_cases_dict = {}
+     death_cases_dict = {}
     
+     name = "09-14-2021.csv"
+     df = pd.read_csv ("covid-data/"+name)
+     df = pd.DataFrame(df, columns= ['Country_Region','Confirmed','Deaths'])
+     for index,row in df.iterrows():
+         if not row['Country_Region'] in confirm_cases_dict:
+             confirm_cases_dict[row['Country_Region']] = int(row['Confirmed'])
+             death_cases_dict[row['Country_Region']] = int(row['Deaths'])
+           
+         else:
+             confirm_cases_dict[row['Country_Region']] += int(row['Confirmed'])
+             death_cases_dict[row['Country_Region']] += int(row['Deaths'])
+             
+     #print(confirm_cases_dict)
+     confirmed_arr = sorted(confirm_cases_dict.items(), key=lambda x: x[1], reverse=True)
+     death_arr = sorted(death_cases_dict.items(), key=lambda x: x[1], reverse=True)
+     
+     
+     for i in range(10):
+        print('total cases in '+ str(confirmed_arr[i][0]) + ' is '+ str(confirmed_arr[i][1]))
+      
+      
+     for i in range(10):
+        print('Death in '+ str(death_arr[i][0]) + ' is '+ str(confirmed_arr[i][1]))
+      
+     return confirmed_arr
+     return death_arr
+
+
+
+#Question 2(b)
+
+#filenames = find_csv_filenames("covid-data")
+
+def find_new_cases_last_two():
+    
+    confirm_arr = find_total_cases_and_death_each_country()
+    confirm_second_dict = {}
+    
+    name = '09-13-2021.csv'
+    df = pd.read_csv ("covid-data/"+ name)
+    df = pd.DataFrame(df, columns= ['Country_Region','Confirmed'])
+
+    
+    for index,row in df.iterrows():
+        
+        if not row['Country_Region'] in confirm_second_dict:
+             confirm_second_dict[row['Country_Region']] = int(row['Confirmed'])
+        else:
+             confirm_second_dict[row['Country_Region']] += int(row['Confirmed'])
+    
+           
+    confirmed_second_arr = sorted(confirm_second_dict.items(), key=lambda x: x[1], reverse=True)
+    
+    for i in range(0,10):
+        
+        print('total new '
+              + str(confirmed_second_arr[i][0]) + ' is ' + str(confirm_arr[i][1]-confirmed_second_arr[i][1]))
+     
     
 # Question 3(a):
 def daily_cases_and_death():
@@ -154,7 +221,8 @@ def print_stats_country(country, population, confirmed, deaths):
 def analyse(path_to_files):
     all_csv = os.listdir(path_to_files)
     all_csv = [csv_file for csv_file in all_csv if csv_file.endswith(".csv")]
-    latest_csv = max(all_csv)
+    all_csv = all_csv.sort(reverse=True)
+    latest_csv = all_csv[0]
     df = pd.read_csv(path_to_files + "/" + latest_csv)
     print(F"Analysing data from folder {path_to_files}")
     print()
