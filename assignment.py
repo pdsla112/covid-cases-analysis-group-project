@@ -10,20 +10,8 @@ import os
 import pandas as pd
 import datetime as dt
 
-# Question 1 (a):
-def find_most_recent(df, latest_csv):
-    """
-    Function for printing desired results for question 1 (a). Requires parameter
-    inputs of a Pandas dataframe of the most recent data, and the name of the
-    latest csv file. Returns null, but prints the desired information for this question.
-    """
-    latest_update = max(df["Last_Update"])
-    print("Question 1 (a):\n"
-          F"Most recent data is in file `{latest_csv}`\n"
-          F"Last updated at {latest_update}\n")
-        
-        
-# Question 1 (b):
+         
+# Question 1:
 def find_total_worldwide(df, latest_csv):
     """
     Function for printing desired results for question 1 (b). Requires parameter
@@ -33,64 +21,38 @@ def find_total_worldwide(df, latest_csv):
     latest_update = max(df["Last_Update"])
     total_cases = df["Confirmed"].sum()
     total_deaths = df["Deaths"].sum()
-    print("Question 1 (b):\n"
+    print("Question 1:\n"
           F"Most recent data is in file `{latest_csv}`\n"
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
 
 
 # Question 2 (a):
-def find_total_cases_deaths(df):
-    print("Question 2 (a):")
+def get_question_2_results(df, all_csv):
     df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
-    df = df.sort_values(by="Confirmed", ascending=False)
-    df = df.iloc[0:10,:]
-    for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
-    print("\n")
-
-
-# Question 2 (b):
-def find_new_cases(df, all_csv):
+    
     all_csv.sort()
     second_latest_csv = all_csv[-2]
     df2 = pd.read_csv("./covid-data/"+second_latest_csv)
-    print("Question 2 (b):")
-    df = df.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df2 = df2.groupby("Country_Region", as_index=False)["Confirmed"].sum()
-    df2 = df2.sort_values(by="Confirmed", ascending=False)
-    df2 = df2.iloc[0:10,:]
-    df = df.sort_values(by="Confirmed", ascending=False)
+    df["new_cases"] = df["Confirmed"] - df2["Confirmed"]
     
-    df2 = df2.rename(columns={'Confirmed': 'Confirmed1'})
-    mergedDf = pd.merge(df, df2, on=['Country_Region'], how='inner')
-    
-    for index,row in mergedDf.iterrows():
-        diff = row['Confirmed']-row['Confirmed1']
-        print(F"{row['Country_Region']} - new cases: {diff}")
-    print()
-    
-    
-# Question 2 (c):
-def estimate_total_active_cases(all_csv, df): 
-    print("Question 2 (c):")
-    all_csv.sort()
     file_10_days_ago = all_csv[-10]
     df_10_days_ago = pd.read_csv("./covid-data/" + file_10_days_ago)
+    df_10_days_ago = df_10_days_ago.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df["active"] = df["Confirmed"] - df_10_days_ago["Confirmed"]
-    df = df.groupby("Country_Region", as_index=False)["active"].sum()
-    df = df.sort_values(by="active", ascending=False)
+    
+    df = df.sort_values(by="Confirmed", ascending=False)
     df = df.iloc[0:10, :]
+    
+    print("Question 2:")
     for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} - active: {row.active}")
+        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths} new cases: {row.new_cases} active: {row.active}")
     print()
-   
+
 
 #total_cases = total_deaths + active + total_recovery
 #1024 = 30 + 24 + total_recovery
-
-
-
 
     
 # Question 3(a):
@@ -247,13 +209,10 @@ def analyse(path_to_files):
     print()
     
     #Q1
-    find_most_recent(df, latest_csv)
     find_total_worldwide(df, latest_csv)
     
     #Q2
-    find_total_cases_deaths(df)
-    find_new_cases(df, all_csv)
-    estimate_total_active_cases(all_csv, df)
+    get_question_2_results(df, all_csv)
     
     #Q3
     daily_cases_and_death(all_csv)
