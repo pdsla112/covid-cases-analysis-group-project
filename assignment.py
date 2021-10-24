@@ -72,34 +72,25 @@ def find_new_cases(df, all_csv):
     
     
 # Question 2 (c):
-def two_lastweek(all_csv):
-    all_csv.sort()
-    two_weeks_csv = all_csv[-14] #data two weeks from latest
-    df3 = pd.read_csv("./covid-data/"+two_weeks_csv)
-    return df3
-
-def new_cases_two_weeks_ago(all_csv, df): #un
+def estimate_total_active_cases(all_csv, df): 
     print("Question 2 (c):")
-    
-    df2 = two_lastweek(all_csv)
+    all_csv.sort()
+    file_10_days_ago = all_csv[-10]
+    df_10_days_ago = pd.read_csv("./covid-data/" + file_10_days_ago)
+    df["active"] = df["Confirmed"] - df_10_days_ago["Confirmed"]
+    df = df.groupby("Country_Region", as_index=False)["active"].sum()
+    df = df.sort_values(by="active", ascending=False)
+    df = df.iloc[0:10, :]
+    for row in df.itertuples(index=False):
+        print(F"{row.Country_Region} - active: {row.active}")
+    print()
    
-    df1 = df.groupby("Country_Region", as_index=False)["Confirmed"].sum() #latest data
-    df2 = df2.groupby("Country_Region", as_index=False)[["Confirmed"]].sum()
-    df2 = df2.sort_values(by="Confirmed", ascending=False)
-    df2 = df2.iloc[0:10,:]
-    df1 = df1.sort_values(by="Confirmed", ascending=False)
-    
-    df2 = df2.rename(columns={'Confirmed': 'Confirmed2'})
-    mergedDf = pd.merge(df1, df2, on=['Country_Region'], how='inner')
-    
-    arr=[]
-    
-    for index,row in mergedDf.iterrows():
-        diff = row['Confirmed']-row['Confirmed2']
-        arr.append(diff)
-        #print(F"{row['Country_Region']} - new cases last two weeks: {diff}")
-    
-    return arr
+
+#total_cases = total_deaths + active + total_recovery
+#1024 = 30 + 24 + total_recovery
+
+
+
 
     
 # Question 3(a):
@@ -189,9 +180,9 @@ def weekly_cases_and_deaths(file):
             new_end_date = formatted_date(i*7+1)
             deaths = str(sum(df[(i+1)*7]['Deaths']) - sum(df[i*7]['Deaths']))
             confirmed = str(sum(df[(i+1)*7]['Confirmed']) - sum(df[i*7]['Confirmed']))  
-            print("Week " + new_end_date + " to " + new_start_date + " new cases: " + confirmed + " new deaths: " + deaths)
-            
+            print("Week " + new_end_date + " to " + new_start_date + " new cases: " + confirmed + " new deaths: " + deaths) 
     print()
+    
 
 # Question 4:
 def find_rates(df):
@@ -262,7 +253,7 @@ def analyse(path_to_files):
     #Q2
     find_total_cases_deaths(df)
     find_new_cases(df, all_csv)
-    new_cases_two_weeks_ago(all_csv, latest_csv)
+    estimate_total_active_cases(all_csv, df)
     
     #Q3
     daily_cases_and_death(all_csv)
