@@ -72,13 +72,12 @@ def find_new_cases(df, all_csv):
 
     
 # Question 3(a):
-def daily_cases_and_death():
+def daily_cases_and_death(file):
     
     print('Question 3(a)')
     df = []
     daily_death = []
     daily_cases = []
-    file = os.listdir('./covid-data')
     file.sort()
     file.reverse()   
     
@@ -110,10 +109,9 @@ def daily_cases_and_death():
     
     
 # Question 3(b)
-def weekly_cases_and_deaths():
+def weekly_cases_and_deaths(file):
     print("\nQuestion 3 b)")
     df = []
-    file = os.listdir('./covid-data')
     file.sort()
 
     for csv_name in file:
@@ -187,7 +185,7 @@ def find_rates(df):
     
 def get_population(cases, incident_rate):
     """
-    Helper function for find_rates function. Returns the population of each 
+    Helper function for find_rates function. Returns the population of a 
     row/country-region. Requires inputs of the confirmed cases and incident_rate
     for that row.
     """
@@ -195,15 +193,22 @@ def get_population(cases, incident_rate):
     return population
 
 def get_combined_incident_rate(confirmed, population):
+    """
+    Helper function for find_rates function. Returns the calculated incident
+    rate for a country. Requires inputs of the confirmed cases and
+    population for that row.
+    """
     incident_rate = round((confirmed / population) * 100000, 3)
     return incident_rate
 
 def get_case_fatality(deaths, confirmed):
+    """
+    Helper function for find_rates function. Returns the calculated case
+    fatality for a country. Requires inpurs of the total deaths and confirmed
+    cases for that row.
+    """
     case_fatality_rate = round((deaths / confirmed) * 100, 3)
     return case_fatality_rate
-  
-
-    
     
     
     
@@ -228,8 +233,8 @@ def analyse(path_to_files):
     find_new_cases(df, all_csv)
     
     #Q3
-    daily_cases_and_death()
-    weekly_cases_and_deaths()
+    daily_cases_and_death(all_csv)
+    weekly_cases_and_deaths(all_csv)
     
     #Q4
     find_rates(df)
