@@ -54,52 +54,32 @@ def get_question_2_results(df, all_csv, path_to_files):
 #total_cases = total_deaths + active + total_recovery
 #1024 = 30 + 24 + total_recovery
 
+# Question 3 (a):
+def question_3_a(all_csv, path_to_files):
+    all_csv.sort()
+    all_csv.reverse()
     
-# Question 3(a):
-def daily_cases_and_death(file):
+    all_read_csv = [pd.read_csv(path_to_files + "/" + i) for i in all_csv]
     
-    print('Question 3(a)')
-    df = []
-    daily_death = []
-    daily_cases = []
-    file.sort()
-    file.reverse()   
-    
-    for csv_name in file:
-        path = './covid-data/' + csv_name
-        df.append(pd.read_csv(path))
-
-    length_df = len(df)-1
-
-    cumulative_death = [sum(df[x]['Deaths']) for x in range(0, length_df)] # ) this does not working, 28
-    
-    cumulative_death.append(0)
-    for i in range(0, length_df):
-        daily_death.append(cumulative_death[i] - cumulative_death[i+1])
- 
-
-    cumulative_cases = [sum(df[x]['Confirmed']) for x in range(0, length_df)]
-    
-    cumulative_cases.append(0)
-    for i in range(0, len(cumulative_cases)-1):
-        daily_cases.append(cumulative_cases[i] - cumulative_cases[i+1])
-    
-
-    
-    for i in range(0, 29):
-        d = dt.datetime.strptime(file[i].split(".")[0], '%m-%d-%Y')
-        new_date = dt.date.strftime(d, "%Y-%m-%d")
-        print(new_date+ ' : new cases: ' + str(daily_cases[i]) + ' new deaths: ' + str(daily_death[i]))
+    print("Question 3 (a):")
+    for j in range(len(all_csv) - 1): 
+        new_df = all_read_csv[j]
+        old_df = all_read_csv[j + 1]
+        new_cases = new_df["Confirmed"].sum() - old_df["Confirmed"].sum()
+        new_deaths = new_df["Deaths"].sum() - old_df["Deaths"].sum()
+        file_name = all_csv[j].split(".")[0]
+        print(F"{file_name} : new cases: {new_cases:,} new deaths: {new_deaths:,}")
+    print()
     
     
 # Question 3(b)
-def weekly_cases_and_deaths(file):
+def weekly_cases_and_deaths(file, path_to_files):
     print("\nQuestion 3 b)")
     df = []
     file.sort()
 
     for csv_name in file:
-        path = './covid-data/' + csv_name
+        path = path_to_files + "/" + csv_name
         df.append(pd.read_csv(path))
 
     '''This code is designed to work in the generic case where the number of date files is unkown and the days of the week they start with are random.
@@ -215,8 +195,8 @@ def analyse(path_to_files):
     get_question_2_results(df, all_csv, path_to_files)
     
     #Q3
-    daily_cases_and_death(all_csv)
-    weekly_cases_and_deaths(all_csv)
+    question_3_a(all_csv, path_to_files)
+    weekly_cases_and_deaths(all_csv, path_to_files)
     
     #Q4
     find_rates(df)
