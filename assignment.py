@@ -50,7 +50,7 @@ def find_total_cases_deaths(df):
     print("\n")
 
 
-# Question 2(b):
+# Question 2 (b):
 def find_new_cases(df, all_csv):
     all_csv.sort()
     second_latest_csv = all_csv[-2]
@@ -69,6 +69,37 @@ def find_new_cases(df, all_csv):
         diff = row['Confirmed']-row['Confirmed1']
         print(F"{row['Country_Region']} - new cases: {diff}")
     print()
+    
+    
+# Question 2 (c):
+def two_lastweek(all_csv):
+    all_csv.sort()
+    two_weeks_csv = all_csv[-14] #data two weeks from latest
+    df3 = pd.read_csv("./covid-data/"+two_weeks_csv)
+    return df3
+
+def new_cases_two_weeks_ago(all_csv, df): #un
+    print("Question 2 (c):")
+    
+    df2 = two_lastweek(all_csv)
+   
+    df1 = df.groupby("Country_Region", as_index=False)["Confirmed"].sum() #latest data
+    df2 = df2.groupby("Country_Region", as_index=False)[["Confirmed"]].sum()
+    df2 = df2.sort_values(by="Confirmed", ascending=False)
+    df2 = df2.iloc[0:10,:]
+    df1 = df1.sort_values(by="Confirmed", ascending=False)
+    
+    df2 = df2.rename(columns={'Confirmed': 'Confirmed2'})
+    mergedDf = pd.merge(df1, df2, on=['Country_Region'], how='inner')
+    
+    arr=[]
+    
+    for index,row in mergedDf.iterrows():
+        diff = row['Confirmed']-row['Confirmed2']
+        arr.append(diff)
+        #print(F"{row['Country_Region']} - new cases last two weeks: {diff}")
+    
+    return arr
 
     
 # Question 3(a):
@@ -231,6 +262,7 @@ def analyse(path_to_files):
     #Q2
     find_total_cases_deaths(df)
     find_new_cases(df, all_csv)
+    new_cases_two_weeks_ago(all_csv, latest_csv)
     
     #Q3
     daily_cases_and_death(all_csv)
