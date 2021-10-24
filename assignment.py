@@ -8,8 +8,6 @@ Collaborators: u6943702, u6841276
 
 import os
 import pandas as pd
-import glob
-
 
 # Question 1 (a):
 def find_most_recent(df, latest_csv):
@@ -39,7 +37,7 @@ def find_total_worldwide(df, latest_csv):
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
 
-# Phillip's Question 2 (a):
+# Question 2 (a):
 def find_total_cases_deaths(df):
     print("Question 2 (a):")
     df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
@@ -48,83 +46,31 @@ def find_total_cases_deaths(df):
     for row in df.itertuples(index=False):
         print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths}")
     print("\n")
+
+
+#Question 2(b):
+second_latest_csv = all_csv[28]
+
+df2 = pd.read_csv("./covid-data/"+second_latest_csv)
+def find_new_cases():
+    print("Question 2 (b):")
     
-# Question 2(a)
-
-from os import listdir
-
-def find_csv_filenames( path_to_dir, suffix=".csv" ):
-    filenames = listdir(path_to_dir)
-    return [ filename for filename in filenames if filename.endswith( suffix ) ]
-
-
-
-#filenames = []#find_csv_filenames("covid-data")
-
-
-
-
-def find_total_cases_and_death_each_country():
-     confirm_cases_dict = {}
-     death_cases_dict = {}
+    global df2
+    global df
+    df = df.groupby("Country_Region", as_index=False)["Confirmed"].sum()
+    df2 = df2.groupby("Country_Region", as_index=False)["Confirmed"].sum()
+    df2 = df2.sort_values(by="Confirmed", ascending=False)
+    df2 = df2.iloc[0:10,:]
+    df = df.sort_values(by="Confirmed", ascending=False)
     
-     name = "09-14-2021.csv"
-     df = pd.read_csv ("covid-data/"+name)
-     df = pd.DataFrame(df, columns= ['Country_Region','Confirmed','Deaths'])
-     for index,row in df.iterrows():
-         if not row['Country_Region'] in confirm_cases_dict:
-             confirm_cases_dict[row['Country_Region']] = int(row['Confirmed'])
-             death_cases_dict[row['Country_Region']] = int(row['Deaths'])
-           
-         else:
-             confirm_cases_dict[row['Country_Region']] += int(row['Confirmed'])
-             death_cases_dict[row['Country_Region']] += int(row['Deaths'])
-             
-     #print(confirm_cases_dict)
-     confirmed_arr = sorted(confirm_cases_dict.items(), key=lambda x: x[1], reverse=True)
-     death_arr = sorted(death_cases_dict.items(), key=lambda x: x[1], reverse=True)
-     
-     
-     for i in range(10):
-        print('total cases in '+ str(confirmed_arr[i][0]) + ' is '+ str(confirmed_arr[i][1]))
-      
-      
-     for i in range(10):
-        print('Death in '+ str(death_arr[i][0]) + ' is '+ str(confirmed_arr[i][1]))
-      
-     return confirmed_arr
-     return death_arr
-
-
-
-#Question 2(b)
-
-#filenames = find_csv_filenames("covid-data")
-
-def find_new_cases_last_two():
+    df2 = df2.rename(columns={'Confirmed': 'Confirmed1'})
+    mergedDf = pd.merge(df, df2, on=['Country_Region'], how='inner')
     
-    confirm_arr = find_total_cases_and_death_each_country()
-    confirm_second_dict = {}
     
-    name = '09-13-2021.csv'
-    df = pd.read_csv ("covid-data/"+ name)
-    df = pd.DataFrame(df, columns= ['Country_Region','Confirmed'])
+    for index,row in mergedDf.iterrows():
+        diff = row['Confirmed']-row['Confirmed1']
+        print(F"{row['Country_Region']} - new cases: {diff}")
 
-    
-    for index,row in df.iterrows():
-        
-        if not row['Country_Region'] in confirm_second_dict:
-             confirm_second_dict[row['Country_Region']] = int(row['Confirmed'])
-        else:
-             confirm_second_dict[row['Country_Region']] += int(row['Confirmed'])
-    
-           
-    confirmed_second_arr = sorted(confirm_second_dict.items(), key=lambda x: x[1], reverse=True)
-    
-    for i in range(0,10):
-        
-        print('total new '
-              + str(confirmed_second_arr[i][0]) + ' is ' + str(confirm_arr[i][1]-confirmed_second_arr[i][1]))
      
     
 # Question 3(a):
@@ -219,7 +165,7 @@ def print_stats_country(country, population, confirmed, deaths):
     incident_rate = round((confirmed / population) * 100000, 3)
     case_fatality_rate = round((deaths / confirmed) * 100, 3)
     print(F"{country} : {incident_rate} cases per 100,000 people and case-fatality ratio: {case_fatality_rate} %")
-    
+
     
     
     
