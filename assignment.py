@@ -47,7 +47,7 @@ def get_question_2_results(df, all_csv, path_to_files):
     
     print("Question 2:")
     for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} - total cases: {row.Confirmed:,} deaths: {row.Deaths:,} new cases: {row.new_cases:,} active: {row.active:,}")
+        print(F"{row.Country_Region} - total cases: {row.Confirmed:,} | deaths: {row.Deaths:,} | new cases: {row.new_cases:,} | active: {row.active:,}")
     print()
 
 
@@ -164,7 +164,7 @@ def find_rates(df):
     df = df.iloc[0:10,:]
     print("Question 4:")
     for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} : {row.combined_incidence:,} cases per 100,000 people and case-fatality ratio: {row.case_fatality_rate} %")
+        print(F"{row.Country_Region} : {row.combined_incidence:,} cases per 100,000 people | case-fatality ratio: {row.case_fatality_rate} %")
     print("\n")
     
 def get_population(cases, incident_rate):
