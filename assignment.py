@@ -70,6 +70,14 @@ def find_new_cases(df, all_csv):
         print(F"{row['Country_Region']} - new cases: {diff}")
     print()
 
+"""
+total_cases = deaths + active + recovered
+old_total_cases + new_cases = total_cases
+
+latest_csv  |  second_latest  |  third_latest  |  fourth_latest  |  fifth_latest  |  ...  |  oldest_csv
+"""
+
+
     
 # Question 3(a):
 def daily_cases_and_death():
@@ -176,9 +184,13 @@ def find_rates(df):
     df = df.dropna(subset=["Incident_Rate"])
     df["population"] = get_population(df.loc[:,"Confirmed"], df.loc[:,"Incident_Rate"])
     df = df.groupby("Country_Region", as_index=False)[["population", "Confirmed", "Deaths"]].sum()
+    df["combined_incidence"] = get_combined_incident_rate(df["Confirmed"], df["population"])
+    df["case_fatality_rate"] = get_case_fatality(df["Deaths"], df["Confirmed"])
+    df = df.sort_values(by="combined_incidence", ascending=False)
+    df = df.iloc[0:10,:]
     print("Question 4:")
     for row in df.itertuples(index=False):
-        print_stats_country(row.Country_Region, row.population, row.Confirmed, row.Deaths)
+        print(F"{row.Country_Region} : {row.combined_incidence} cases per 100,000 people and case-fatality ratio: {row.case_fatality_rate} %")
     print("\n")
     
 def get_population(cases, incident_rate):
@@ -190,20 +202,13 @@ def get_population(cases, incident_rate):
     population = (100000 * cases) / incident_rate
     return population
 
-def print_stats_country(country, population, confirmed, deaths):
-    """
-    Helper function for find_rates function. Calculates the incident_rate and 
-    case_fatality_rate of that row. This row contains the data of the entire 
-    country, not its smaller regions. Prints the desired result for question 4 
-    for each country into the console. Requires country name, population count, 
-    confirmed cases, and death cases as inputs. 
-    """
+def get_combined_incident_rate(confirmed, population):
     incident_rate = round((confirmed / population) * 100000, 3)
-    case_fatality_rate = round((deaths / confirmed) * 100, 3)
-    print(F"{country} : {incident_rate} cases per 100,000 people and case-fatality ratio: {case_fatality_rate} %")
+    return incident_rate
 
-    
-    
+def get_case_fatality(deaths, confirmed):
+    case_fatality_rate = round((deaths / confirmed) * 100, 3)
+    return case_fatality_rate
     
     
     
