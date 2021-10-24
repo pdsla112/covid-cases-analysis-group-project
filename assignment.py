@@ -37,6 +37,7 @@ def find_total_worldwide(df, latest_csv):
           F"Last updated at {latest_update}\n"
           F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
 
+
 # Question 2 (a):
 def find_total_cases_deaths(df):
     print("Question 2 (a):")
@@ -49,14 +50,11 @@ def find_total_cases_deaths(df):
 
 
 #Question 2(b):
-second_latest_csv = all_csv[28]
-
-df2 = pd.read_csv("./covid-data/"+second_latest_csv)
-def find_new_cases():
+def find_new_cases(df, all_csv):
+    all_csv.sort()
+    second_latest_csv = all_csv[-2]
+    df2 = pd.read_csv("./covid-data/"+second_latest_csv)
     print("Question 2 (b):")
-    
-    global df2
-    global df
     df = df.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df2 = df2.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df2 = df2.sort_values(by="Confirmed", ascending=False)
@@ -66,12 +64,11 @@ def find_new_cases():
     df2 = df2.rename(columns={'Confirmed': 'Confirmed1'})
     mergedDf = pd.merge(df, df2, on=['Country_Region'], how='inner')
     
-    
     for index,row in mergedDf.iterrows():
         diff = row['Confirmed']-row['Confirmed1']
         print(F"{row['Country_Region']} - new cases: {diff}")
+    print()
 
-     
     
 # Question 3(a):
 def daily_cases_and_death():
@@ -184,6 +181,7 @@ def analyse(path_to_files):
     find_most_recent(df, latest_csv)
     find_total_worldwide(df, latest_csv)
     find_total_cases_deaths(df)
+    find_new_cases(df, all_csv)
     find_rates(df)
 
 
