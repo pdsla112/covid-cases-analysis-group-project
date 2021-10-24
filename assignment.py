@@ -3,7 +3,7 @@ Template for the COMP1730/6730 project assignment, S2 2021.
 The assignment specification is available on the course web
 site, at https://cs.anu.edu.au/courses/comp1730/assessment/project/
 The assignment is due 25/10/2021 at 9:00 am, Canberra time
-Collaborators: u6943702, u6841276
+Collaborators: u6943702, u6841276, u7067919
 """
 
 import os
