@@ -81,63 +81,42 @@ def question_3_a(all_csv, path_to_files):
         print(F"{file_name} : new cases: {new_cases:,} | new deaths: {new_deaths:,}")
     print()
     
-    
+
+# Question 3 (b):
 def question_3_b(all_csv, path_to_files):
     all_csv.sort()
+    all_csv.reverse()
+    all_csv = get_only_relevant_csv(all_csv)
+    all_read_csv = [pd.read_csv(path_to_files + "/" + i) for i in all_csv]
     
+    print("Differece:")
+    print(all_read_csv[0]["Deaths"].sum() - all_read_csv[1]["Deaths"].sum())
     
-# Question 3(b)
-def weekly_cases_and_deaths(file, path_to_files):
     print("Weekly Changes:")
-    df = []
-    file.sort()
-
-    for csv_name in file:
-        path = path_to_files + "/" + csv_name
-        df.append(pd.read_csv(path))
-
-    '''This code is designed to work in the generic case where the number of date files is unkown and the days of the week they start with are random.
-    To do this the code is divided into three print statement cases:
-        1. The first week since it doesnt start on a Monday; start=??, end=Mon
-        2. The middle weeks which start and and on a Monday; start=end=Mon
-        3. The final week which doesnt have to end on a MOnday; start=Mon, end=??
-    '''
-    
-    ''' Some assumptions on the input: if your first day is a date other than monday you must still have files for monday untill that specific day in the folder'''
-    n = (len(file)-1) // 7 # Calculated the number of complete weeks + the first week
-    r = (len(file)-1) - n*7 # calculated the number of days in the final week
-    
-    def formatted_date(index):#takes index of file
-        start_d = dt.datetime.strptime(file[index].split(".")[0], '%m-%d-%Y')
-        return dt.date.strftime(start_d, "%Y-%m-%d")
-    
-    """ This prints the cases for an incomplete week, that is a week that ends on a day other than sunday"""
-    if r != 0:
-        new_end_date = formatted_date(n*7+r) # last day of last week
-        new_start_date = formatted_date(n*7+1) # monday of the last week
-        deaths = str(sum(df[n*7+r]['Deaths']) - sum(df[n*7]['Deaths']))
-        confirmed = str(sum(df[n*7+r]['Confirmed']) - sum(df[n*7]['Confirmed']))
-        print("Week "+ new_start_date +" to " + new_end_date + " new cases: " + confirmed + " new deaths: " + deaths)
-       
-    
-    """ This prints the cases for the first week regardless whether complete or not and all the following complete weeks """
-    starting_day = 1 #monday=0, tues=1 .... Sunday = 6 - this is the starting day for the first week
-    
-    # the reason for decrementing the for loop is to avoid a reverse sort later
-    for i in range(n-1,-1,-1): # repeats the code n times where n is the number weeks; in revers order
-        new_start_date = formatted_date((i+1)*7)
-        """ this is the special print statement for the first week since it may be incomplete"""
-        if i==0:
-            new_end_date = formatted_date(i*7+starting_day+1)
-            deaths = str(sum(df[(i+1)*7]['Deaths']) - sum(df[i*7+starting_day]['Deaths']))
-            confirmed = str(sum(df[(i+1)*7]['Confirmed']) - sum(df[i*7+starting_day]['Confirmed']))
-            print("Week "+new_end_date + " to " + new_start_date + " new cases: "+ confirmed + " new deaths: " + deaths )
-        else:
-            new_end_date = formatted_date(i*7+1)
-            deaths = str(sum(df[(i+1)*7]['Deaths']) - sum(df[i*7]['Deaths']))
-            confirmed = str(sum(df[(i+1)*7]['Confirmed']) - sum(df[i*7]['Confirmed']))  
-            print("Week " + new_end_date + " to " + new_start_date + " new cases: " + confirmed + " new deaths: " + deaths) 
+    for j in range(0, len(all_csv) - 1, 2):
+        new_df = all_read_csv[j]
+        new_file_name = all_csv[j].split(".")[0]
+        index = j + 1 if (j == len(all_csv) - 2) else (j + 2)
+        old_df = all_read_csv[index]
+        old_file_name = all_csv[j + 1].split(".")[0]
+        new_cases = new_df["Confirmed"].sum() - old_df["Confirmed"].sum()
+        new_deaths = new_df["Deaths"].sum() - old_df["Deaths"].sum()
+        print(F"Week {old_file_name} to {new_file_name} new cases: {new_cases:,} | new deaths: {new_deaths:,}")
     print()
+    
+    
+def get_only_relevant_csv(all_csv):
+    result = []
+    for i in range(len(all_csv)):
+        file_name = all_csv[i].split(".")[0]
+        month = int(file_name.split("-")[0])
+        day = int(file_name.split("-")[1])
+        year = int(file_name.split("-")[2])
+        date = dt.datetime(year, month, day)
+        if i == 0 or i == (len(all_csv) - 1) or date.weekday() == 0 or date.weekday() == 6:
+            result.append(all_csv[i])
+    return result
+    
     
 
 # Question 4:
@@ -210,7 +189,7 @@ def analyse(path_to_files):
     
     #Q3
     question_3_a(all_csv, path_to_files)
-    weekly_cases_and_deaths(all_csv, path_to_files)
+    question_3_b(all_csv, path_to_files)
     
     #Q4
     find_rates(df)
