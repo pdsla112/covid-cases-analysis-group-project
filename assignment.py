@@ -24,16 +24,16 @@ def find_total_worldwide(df, latest_csv):
     print("Question 1:\n"
           F"Most recent data is in file `{latest_csv}`\n"
           F"Last updated at {latest_update}\n"
-          F"Total worldwide cases: {total_cases}, Total worldwide deaths: {total_deaths}\n")
+          F"Total worldwide cases: {total_cases:,} , Total worldwide deaths: {total_deaths:,}\n")
 
 
-# Question 2 (a):
-def get_question_2_results(df, all_csv):
+# Question 2:
+def get_question_2_results(df, all_csv, path_to_files):
     df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
     
     all_csv.sort()
     second_latest_csv = all_csv[-2]
-    df2 = pd.read_csv("./covid-data/"+second_latest_csv)
+    df2 = pd.read_csv(path_to_files + "/" + second_latest_csv)
     df2 = df2.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df["new_cases"] = df["Confirmed"] - df2["Confirmed"]
     
@@ -47,7 +47,7 @@ def get_question_2_results(df, all_csv):
     
     print("Question 2:")
     for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} - total cases: {row.Confirmed} deaths: {row.Deaths} new cases: {row.new_cases} active: {row.active}")
+        print(F"{row.Country_Region} - total cases: {row.Confirmed:,} deaths: {row.Deaths:,} new cases: {row.new_cases:,} active: {row.active:,}")
     print()
 
 
@@ -164,7 +164,7 @@ def find_rates(df):
     df = df.iloc[0:10,:]
     print("Question 4:")
     for row in df.itertuples(index=False):
-        print(F"{row.Country_Region} : {row.combined_incidence} cases per 100,000 people and case-fatality ratio: {row.case_fatality_rate} %")
+        print(F"{row.Country_Region} : {row.combined_incidence:,} cases per 100,000 people and case-fatality ratio: {row.case_fatality_rate} %")
     print("\n")
     
 def get_population(cases, incident_rate):
@@ -212,7 +212,7 @@ def analyse(path_to_files):
     find_total_worldwide(df, latest_csv)
     
     #Q2
-    get_question_2_results(df, all_csv)
+    get_question_2_results(df, all_csv, path_to_files)
     
     #Q3
     daily_cases_and_death(all_csv)
