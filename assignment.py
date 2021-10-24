@@ -24,31 +24,41 @@ def find_total_worldwide(df, latest_csv):
     print("Question 1:\n"
           F"Most recent data is in file `{latest_csv}`\n"
           F"Last updated at {latest_update}\n"
-          F"Total worldwide cases: {total_cases:,} , Total worldwide deaths: {total_deaths:,}\n")
+          F"Total worldwide cases: {total_cases:,}, Total worldwide deaths: {total_deaths:,}\n")
 
 
 # Question 2:
 def get_question_2_results(df, all_csv, path_to_files):
+    """
+    Function that prints the relevant results for question 2. Requires inputs of 
+    the lastest dataframe df, list of all csv file names all_csv, and string
+    path to data files path_to_files. Please read all the comments to know the
+    various assumptions made for estimation of active cases. Assumes that covid symptoms 
+    disappear after 10 days for most people according to CDC.
+    """
+    # Working for question 2 (a)
     df = df.groupby("Country_Region", as_index=False)[["Confirmed", "Deaths"]].sum()
     
+    # Working for question 2 (b)
     all_csv.sort()
     second_latest_csv = all_csv[-2]
     df2 = pd.read_csv(path_to_files + "/" + second_latest_csv)
     df2 = df2.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df["new_cases"] = df["Confirmed"] - df2["Confirmed"]
     
-    file_10_days_ago = all_csv[-10]
+    # Working for question 2 (c)
+    file_10_days_ago = all_csv[-10]  # Get the csv data from 10 days ago.
     df_10_days_ago = pd.read_csv("./covid-data/" + file_10_days_ago)
     df_10_days_ago = df_10_days_ago.groupby("Country_Region", as_index=False)["Confirmed"].sum()
     df["active"] = df["Confirmed"] - df_10_days_ago["Confirmed"]
     
     df = df.sort_values(by="Confirmed", ascending=False)
-    df = df.iloc[0:10, :]
+    df = df.iloc[0:10, :]  # Get the top ten rows according to the number of confirmed cases
     
     print("Question 2:")
     for row in df.itertuples(index=False):
         print(F"{row.Country_Region} - total cases: {row.Confirmed:,} | deaths: {row.Deaths:,} | new cases: {row.new_cases:,} | active: {row.active:,}")
-    print()
+    print()  # Leave a line spacing afterwards for cleaner presentation
 
 
 #total_cases = total_deaths + active + total_recovery
@@ -61,20 +71,24 @@ def question_3_a(all_csv, path_to_files):
     
     all_read_csv = [pd.read_csv(path_to_files + "/" + i) for i in all_csv]
     
-    print("Question 3 (a):")
+    print("Question 3:")
     for j in range(len(all_csv) - 1): 
         new_df = all_read_csv[j]
         old_df = all_read_csv[j + 1]
         new_cases = new_df["Confirmed"].sum() - old_df["Confirmed"].sum()
         new_deaths = new_df["Deaths"].sum() - old_df["Deaths"].sum()
         file_name = all_csv[j].split(".")[0]
-        print(F"{file_name} : new cases: {new_cases:,} new deaths: {new_deaths:,}")
+        print(F"{file_name} : new cases: {new_cases:,} | new deaths: {new_deaths:,}")
     print()
+    
+    
+def question_3_b(all_csv, path_to_files):
+    all_csv.sort()
     
     
 # Question 3(b)
 def weekly_cases_and_deaths(file, path_to_files):
-    print("\nQuestion 3 b)")
+    print("Weekly Changes:")
     df = []
     file.sort()
 
