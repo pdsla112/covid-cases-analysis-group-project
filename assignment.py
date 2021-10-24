@@ -8,6 +8,7 @@ Collaborators: u6943702, u6841276, u7067919
 
 import os
 import pandas as pd
+import datetime as dt
 
 # Question 1 (a):
 def find_most_recent(df, latest_csv):
@@ -49,7 +50,7 @@ def find_total_cases_deaths(df):
     print("\n")
 
 
-#Question 2(b):
+# Question 2(b):
 def find_new_cases(df, all_csv):
     all_csv.sort()
     second_latest_csv = all_csv[-2]
@@ -73,57 +74,95 @@ def find_new_cases(df, all_csv):
 # Question 3(a):
 def daily_cases_and_death():
     
+    print('Question 3(a)')
     df = []
     daily_death = []
     daily_cases = []
     file = os.listdir('./covid-data')
     file.sort()
-    file.reverse()
-    #date = file[0].split_at('.')[0]
+    file.reverse()   
+    
+    for csv_name in file:
+        path = './covid-data/' + csv_name
+        df.append(pd.read_csv(path))
+
+    length_df = len(df)-1
+
+    cumulative_death = [sum(df[x]['Deaths']) for x in range(0, length_df)] # ) this does not working, 28
+    
+    cumulative_death.append(0)
+    for i in range(0, length_df):
+        daily_death.append(cumulative_death[i] - cumulative_death[i+1])
+ 
+
+    cumulative_cases = [sum(df[x]['Confirmed']) for x in range(0, length_df)]
+    
+    cumulative_cases.append(0)
+    for i in range(0, len(cumulative_cases)-1):
+        daily_cases.append(cumulative_cases[i] - cumulative_cases[i+1])
+    
+
+    
+    for i in range(0, 29):
+        d = dt.datetime.strptime(file[i].split(".")[0], '%m-%d-%Y')
+        new_date = dt.date.strftime(d, "%Y-%m-%d")
+        print(new_date+ ' : new cases: ' + str(daily_cases[i]) + ' new deaths: ' + str(daily_death[i]))
+    
+    
+# Question 3(b)
+def weekly_cases_and_deaths():
+    print("\nQuestion 3 b)")
+    df = []
+    file = os.listdir('./covid-data')
+    file.sort()
 
     for csv_name in file:
         path = './covid-data/' + csv_name
         df.append(pd.read_csv(path))
+
+    '''This code is designed to work in the generic case where the number of date files is unkown and the days of the week they start with are random.
+    To do this the code is divided into three print statement cases:
+        1. The first week since it doesnt start on a Monday; start=??, end=Mon
+        2. The middle weeks which start and and on a Monday; start=end=Mon
+        3. The final week which doesnt have to end on a MOnday; start=Mon, end=??
+    '''
     
-    cumulative_death = [sum(df[x]['Deaths']) for x in range(0, 30)] #len(df)-1) this does not working, 28
+    ''' Some assumptions on the input: if your first day is a date other than monday you must still have files for monday untill that specific day in the folder'''
+    n = (len(file)-1) // 7 # Calculated the number of complete weeks + the first week
+    r = (len(file)-1) - n*7 # calculated the number of days in the final week
     
-    for i in range(0, len(cumulative_death)-1):
-        daily_death.append(cumulative_death[i] - cumulative_death[i+1])
-        
-    cumulative_cases = [sum(df[x]['Confirmed']) for x in range(0, 30)]
+    def formatted_date(index):#takes index of file
+        start_d = dt.datetime.strptime(file[index].split(".")[0], '%m-%d-%Y')
+        return dt.date.strftime(start_d, "%Y-%m-%d")
     
-    for i in range(0, len(cumulative_cases)-1):
-        daily_cases.append(cumulative_cases[i] - cumulative_cases[i+1])
+    """ This prints the cases for an incomplete week, that is a week that ends on a day other than sunday"""
+    if r != 0:
+        new_end_date = formatted_date(n*7+r) # last day of last week
+        new_start_date = formatted_date(n*7+1) # monday of the last week
+        deaths = str(sum(df[n*7+r]['Deaths']) - sum(df[n*7]['Deaths']))
+        confirmed = str(sum(df[n*7+r]['Confirmed']) - sum(df[n*7]['Confirmed']))
+        print("Week "+ new_start_date +" to " + new_end_date + " new cases: " + confirmed + " new deaths: " + deaths)
+       
     
-    for i in range(0, 30):
-        print(df[i]['Last_Update'][0].split(' ')[0] + ' : new cases: ' + str(daily_cases[i]) + ' new deaths: ' + str(daily_death[i]))
-        
-# Question 3(b)
-def weekly_cases_and_deaths():
+    """ This prints the cases for the first week regardless whether complete or not and all the following complete weeks """
+    starting_day = 1 #monday=0, tues=1 .... Sunday = 6 - this is the starting day for the first week
     
-    df = []
-    daily_death = []
-    weekly_death = []
-    file = os.listdir('./covid-data')
-    file.sort()
-    file.reverse()
-    
-    for csv_name in file:
-        path = './covid-data' + csv_name
-        df.append(pd.read_csv(path))
-    
-    cumulative_death = [sum(df[x]['Deaths']) for x in range(0, 31)] #len(df)-1) this does not working, 28
-    
-    for i in range(0, len(cumulative_death)):
-        daily_death.append(cumulative_death[i] - cumulative_death[i+1])
-        
-    for i in range(0, len(daily_death)):
-        one_week = 7
-        if one_week > 0:
-            weekly_death.append(daily_death[i] + daily_death[i+1])
-            one_week -= 1
+    # the reason for decrementing the for loop is to avoid a reverse sort later
+    for i in range(n-1,-1,-1): # repeats the code n times where n is the number weeks; in revers order
+        new_start_date = formatted_date((i+1)*7)
+        """ this is the special print statement for the first week since it may be incomplete"""
+        if i==0:
+            new_end_date = formatted_date(i*7+starting_day+1)
+            deaths = str(sum(df[(i+1)*7]['Deaths']) - sum(df[i*7+starting_day]['Deaths']))
+            confirmed = str(sum(df[(i+1)*7]['Confirmed']) - sum(df[i*7+starting_day]['Confirmed']))
+            print("Week "+new_end_date + " to " + new_start_date + " new cases: "+ confirmed + " new deaths: " + deaths )
         else:
-            pass
+            new_end_date = formatted_date(i*7+1)
+            deaths = str(sum(df[(i+1)*7]['Deaths']) - sum(df[i*7]['Deaths']))
+            confirmed = str(sum(df[(i+1)*7]['Confirmed']) - sum(df[i*7]['Confirmed']))  
+            print("Week " + new_end_date + " to " + new_start_date + " new cases: " + confirmed + " new deaths: " + deaths)
+            
+    print()
 
 # Question 4:
 def find_rates(df):
@@ -178,10 +217,20 @@ def analyse(path_to_files):
     df = pd.read_csv(path_to_files + "/" + latest_csv)
     print(F"Analysing data from folder {path_to_files}")
     print()
+    
+    #Q1
     find_most_recent(df, latest_csv)
     find_total_worldwide(df, latest_csv)
+    
+    #Q2
     find_total_cases_deaths(df)
     find_new_cases(df, all_csv)
+    
+    #Q3
+    daily_cases_and_death()
+    weekly_cases_and_deaths()
+    
+    #Q4
     find_rates(df)
 
 
